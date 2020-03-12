@@ -16,14 +16,13 @@ namespace Ex1
         public Form1()
         {
             InitializeComponent();
-            
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
-
+            this.FormClosing += Window1_Closing;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            List<string> people = new List<string>() { "Уругвай", "Эквадор" };
+            List<string> people = new List<string>() { "Договор о покупке по форме ТОРГ-12", "Договор о приеме сотрудника на работу (Т-1)", "Договор аренды помещения", "Годовой бухгалтерский отчет (2019)" };
             foreach (string i in people)
             {
                 comboBox1.Items.Add(i);
@@ -44,7 +43,7 @@ namespace Ex1
         {
 
         }
-
+        
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             
@@ -65,33 +64,12 @@ namespace Ex1
             Form2 newForm = new Form2();
             newForm.Show();
         }
-        class buff
+        private void Window1_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            public int a;
-            public string s;
-            public int x
-            {
-                get
-                {
-                    return a;
-                }
-                set
-                {
-                    a = value;
-                }
-            }
-            public string buffer
-            {
-                get
-                {
-                    return s;
-                }
-                set
-                {
-                    s = value;
-                }
-            }
-
+            Application.Exit();
         }
-    }
+        
+        }
+   
 }
+
