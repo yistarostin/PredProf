@@ -13,16 +13,10 @@ namespace Ex1
 {
     public partial class Form2 : Form
     {
-        Employer vasia = new Employer();
+        ConnectionWIthDataBase connect = new ConnectionWIthDataBase();
         public Form2()
         {
             InitializeComponent();
-            AutoCompleteStringCollection names = new AutoCompleteStringCollection();
-            List<string> people = new List<string>() { "Шилов Владлен Львович 25.05.1989 - подписал", "Гребневский Станислав Станиславович 07.09.1960 - подписал", "Белов Радислав Иванович 02.11.1958 - не подписал" };
-            names.AddRange(people.ToArray());
-            textBox2.AutoCompleteCustomSource = names;
-            textBox2.AutoCompleteMode = AutoCompleteMode.None;
-            textBox2.AutoCompleteSource = AutoCompleteSource.CustomSource;
             textBox2.TextChanged += textBox2_TextChanged;
             textBox1.TextChanged += textBox1_TextChanged;
             this.FormClosing += Window2_Closing;
@@ -45,9 +39,18 @@ namespace Ex1
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            List<Employer> people = new List<Employer>();
-            textBox1.Text = vasia.NameOfDocument();
-           
+
+            textBox1.Text = connect.GetChoosenDocumentInfo();
+            /*foreach(ConnectionWIthDataBase.EmployeeNameAndBirthDay person in people)
+            {
+                 string s = person.name + ", " + person.birthday;
+                 textBox2.Text += s + Environment.NewLine + Environment.NewLine;
+             }*/
+            textBox2.Text += ("Отдел: " + ConnectionWIthDataBase.ChoosenDocument.Department + Environment.NewLine + "Минимальный уровень доступа: " 
+                + ConnectionWIthDataBase.ChoosenDocument.SecurityLevel.ToString() + Environment.NewLine + "Требуется подписей: "
+                + ConnectionWIthDataBase.ChoosenDocument.NumberOfSigned.ToString() + Environment.NewLine + "Подписали: " +
+                ConnectionWIthDataBase.ChoosenDocument.EmployeesWhoSigned);
+
         }
 
         private void textBox1_TextChanged_1(object sender, EventArgs e)
@@ -81,23 +84,6 @@ namespace Ex1
         {
 
         }
-    }
-    public partial class Employer
-    {
-       public string FIO; 
-       public string DB;
-       public string Depart;
-       public string Position;
-       public int admiss;
-       public int id;
-        public int score;
-       
-       public string NameOfDocument()//возвращает значение документа, который нужно подписать
-       {
-            string s = "Годовой бухгалтерский отчет (2019)";
-            return s;
-       }
-       
     }
 
 }

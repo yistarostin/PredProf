@@ -12,13 +12,18 @@ namespace Ex1
 {
     public partial class Window3 : Form
     {
+        string res;
+        ConnectionWIthDataBase connect = new ConnectionWIthDataBase();
         buff obj1 = new buff();
         public Window3()
         {
             InitializeComponent();
-            List<string> people = new List<string>() { "Шилов Владлен Львович 25.05.1989", "Гребневский Станислав Станиславович 07.09.1960", "Белов Радислав Иванович 02.11.1958" };
+            List<ConnectionWIthDataBase.EmployeeNameAndBirthDay> people = connect.GetAllEmployees();
             AutoCompleteStringCollection source = new AutoCompleteStringCollection();
-            source.AddRange(people.ToArray());
+            foreach(ConnectionWIthDataBase.EmployeeNameAndBirthDay person in people)
+            {
+                source.Add(person.name + ", " +person.birthday);
+            }
             textBox1.AutoCompleteCustomSource = source;
             textBox1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             textBox1.AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -42,7 +47,7 @@ namespace Ex1
 
         private void YES_Click(object sender, EventArgs e)
         {
-            string res = obj1.Name; //имя алкаша
+            res = obj1.Name; //имя алкаша
             DialogResult result = MessageBox.Show(//открытие окна 4
                  "Вставьте флеш-накопитель, содержащий вашу подпись",
                  "Сообщение",
@@ -87,7 +92,7 @@ namespace Ex1
                 if (obj1.CheckFlesh() == -1)//окно 5.3
                 {
                     DialogResult result2 = MessageBox.Show(
-                    "Флешка не вставлена",
+                    "Флеш-карта не прочитана",
                     "Сообщение",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information,
@@ -103,7 +108,7 @@ namespace Ex1
                 if (obj1.CheckFlesh() == -2)//окно 5.4
                 {
                     DialogResult result2 = MessageBox.Show(
-                    "Вы уже подписывали этот документ!",
+                    "Вы уже подписывали этот документ",
                     "Сообщение",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information,
@@ -137,8 +142,9 @@ namespace Ex1
     class buff
     {
         public int a;
-        public string s;
+        public int documentIndex;
         public string name;
+        ConnectionWIthDataBase connect = new ConnectionWIthDataBase();
         public int x
         {
             get
@@ -162,51 +168,36 @@ namespace Ex1
             }
         }
 
-        public string buffer
+        public int buffer
         {
             get
             {
-                return s;
+                return documentIndex;
             }
             set
             {
-                s = value;
+                documentIndex = value;
             }
         }
         public int CheckFlesh()//чекает флешку
         {
-            int a = 0;
-            if (a == 1)
+            string checkedflash = connect.IsIDValid(name);
+            if (checkedflash == "Флеш-карта не прочитана")
             {
-                return 1;
+                return -1;
             }
-            if (a == 0)
+            if (checkedflash == "Сотрудник подтвержден")
             {
+                connect.SetSigned(name); // Дописать функцию, которая по строке "ФИО, ДР" возращается айди человека и передать в SetSigned айди
                 return 0;
             }
-            if (a==-2)
+            if (checkedflash == "Уже подписал")
             {
                 return -2;
             }
             else
             {
-                return -1;
-            }
-        }
-        public partial class Employer
-        {
-            public string FIO;
-            public string DB;
-            public string Depart;
-            public string Position;
-            public int admiss;
-            public int id;
-            public int score;
-
-            public string NameOfDocument()//возвращает значение документа, который нужно подписать
-            {
-                string s = "document";
-                return s;
+                return 1;
             }
         }
     }

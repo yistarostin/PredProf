@@ -13,6 +13,7 @@ namespace Ex1
     public partial class Form1 : Form
     {
         buff obj1 = new buff();
+        ConnectionWIthDataBase connect = new ConnectionWIthDataBase();
         public Form1()
         {
             InitializeComponent();
@@ -22,14 +23,25 @@ namespace Ex1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            List<string> people = new List<string>() { "Договор о покупке по форме ТОРГ-12", "Договор о приеме сотрудника на работу (Т-1)", "Договор аренды помещения", "Годовой бухгалтерский отчет (2019)" };
-            foreach (string i in people)
+            List<ConnectionWIthDataBase.DocumentNameAndIsSigned> documents = new List<ConnectionWIthDataBase.DocumentNameAndIsSigned>();
+            documents = connect.GetAllDocumentsNames();
+            string s;
+            string s2;
+            foreach (ConnectionWIthDataBase.DocumentNameAndIsSigned i in documents)
             {
-                comboBox1.Items.Add(i);
+                if (i.isFullySigned == true)
+                {
+                    s2 = "подписан";
+                }
+                else
+                {
+                    s2 = "неподписан";
+                }
+                s = i.name + ", " + s2;
+                comboBox1.Items.Add(s);
             }
-        }
 
-     
+        }
         private void label2_Click(object sender, EventArgs e)
         {
 
@@ -38,7 +50,6 @@ namespace Ex1
         {
 
         }
-
         private void panel3_Paint(object sender, PaintEventArgs e)
         {
 
@@ -47,7 +58,7 @@ namespace Ex1
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             
-            string x = comboBox1.SelectedItem.ToString(); //имя выбранного документа
+            int x = comboBox1.SelectedIndex; //имя выбранного документа. надо поменять на инлекс выбранного, который является праймари-ключом
             obj1.buffer = x;
         }
 
@@ -58,7 +69,7 @@ namespace Ex1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string result = obj1.buffer;
+            connect.SetChoosenDocument(obj1.buffer);
             //на этой строке нужно передать result в твою функцию
             this.Hide();
             Form2 newForm = new Form2();
@@ -69,7 +80,6 @@ namespace Ex1
             Application.Exit();
         }
         
-        }
-   
+    }
 }
 

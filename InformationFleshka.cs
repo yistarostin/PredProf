@@ -7,16 +7,11 @@ using System.IO;
 using System.Management;
 using System.Threading.Tasks;
 
-namespace Флешка
+namespace Ex1
 {
     class InformationFromFleshka
     {
-        /*static void Main()
-        {
-            Console.WriteLine(InformationAboutFile());
-            Console.ReadKey();
-        }*/
-        static string InformationAboutFile()
+        static public string InformationAboutFile()
         {
             string NameOfDriver = " ", textFromFile = " "; ;
             bool changingname = false;
@@ -34,12 +29,20 @@ namespace Флешка
             {
                 string path = NameOfDriver + "\\employeeid";
                 DirectoryInfo dirInfo = new DirectoryInfo(path);
-                using (FileStream fstream = File.OpenRead($"{path}\\id.txt"))
+                try
                 {
-                    byte[] array = new byte[fstream.Length];
-                    fstream.Read(array, 0, array.Length);
-                    textFromFile = System.Text.Encoding.Default.GetString(array);
-                    return textFromFile;
+                    using (FileStream fstream = File.OpenRead($"{path}\\id.txt"))
+                    {
+                        byte[] array = new byte[fstream.Length];
+                        fstream.Read(array, 0, array.Length);
+                        textFromFile = System.Text.Encoding.Default.GetString(array);
+
+                        return textFromFile;
+                    }
+                }
+                catch
+                {
+                    return "ObmanSuperPuperPapkiIliFailaNet";
                 }
             }
         }

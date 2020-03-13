@@ -6,7 +6,8 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Data.Linq.Mapping;
-namespace DataBaseThings
+
+namespace Ex1
 {
     [Table(Name = "Departments")]
     public class Department
@@ -83,7 +84,7 @@ namespace DataBaseThings
         [Column]
         public int NumberOfSigned;
         [Column]
-        public string EmployeesWhoSigned;
+        public string EmployeesWhoSigned = " ";
         [Column]
         public bool IsFullySigned;
         static public void ReadFromListOfDocuments(Table<Document> Documents, DataContext db) //ONLY 1 TIME
@@ -105,49 +106,25 @@ namespace DataBaseThings
         }
         public override string ToString()
         {
-            return ("Название: " + Name + "\nОтдел: " + Department + "\nМинимальный уровень доступа: " + SecurityLevel.ToString() + "\nТребуется подписей: " + NumberOfSigned.ToString() + "\nПодписали: " + EmployeesWhoSigned);
+            return ("Отдел: " + Department + "\nМинимальный уровень доступа: " + SecurityLevel.ToString() + "\nТребуется подписей: " + NumberOfSigned.ToString() + "\nПодписали: " + EmployeesWhoSigned);
         }
     }
 
 
-    class Sample //для тест, мейн уберем, когда будем соединять с интерфейсом николая, мейн останется только у него
+    public class ConnectionWIthDataBase
     {
-        static void Main(string[] args)
+        public DataContext db;
+        public Table<Employee> Employees;
+        public Table<Department> Departments;
+        public Table<Document> Documents;
+        static public Document ChoosenDocument;
+        public ConnectionWIthDataBase()
         {
-            Console.OutputEncoding = Encoding.UTF8;
-            DataContext db = new DataContext("D:\\PredProfMDF\\db\\DataaaaaaaaaAAAAABaaase.mdf");
-            db.DeleteDatabase();
-            Table<Employee> Employees = db.GetTable<Employee>();
-            Table<Department> Departments = db.GetTable<Department>();
-            Table<Document> Documents = db.GetTable<Document>();
-            db.CreateDatabase();
-            Employee.ReadFromListOfEmployess(Employees, db);
-            Department.ReadFromListOfDepartments(Departments, db);
-            Document.ReadFromListOfDocuments(Documents, db);
-            var q =
-             from c in Employees
-             select c;
-            foreach (var cust in q)
-                Console.WriteLine("id = {0}, Name = {1}, Position = {2}, Departure = {3}, SecurityLevel = {4}, BirthDate = {5}", cust.EmployeeID, cust.Name, cust.Position, cust.Department, cust.SecurityLevel, cust.BirthDate);
-            var z =
-             from c in Departments
-             select c;
-            foreach (var emp in z)
-                Console.WriteLine("id = {0}, Name = {1}", emp.DepartureID, emp.Name);
-            var x =
-             from c in Documents
-             select c;
-            foreach (var doc in x)
-                Console.WriteLine("id = {0}, Name = {1}, Department = {2}, SecurityLevel = {3}, NumberOfSigned = {4}, isFullySigned = {5}", doc.DocumentID, doc.Name, doc.Department, doc.SecurityLevel, doc.NumberOfSigned, doc.IsFullySigned);
-            return;
+            db = new DataContext("D:\\PredProfMDF\\DataaaaaaaaaAAAAABaaaaaaaaaaaaaaaase.mdf");
+            Employees = db.GetTable<Employee>();
+            Departments = db.GetTable<Department>();
+            Documents = db.GetTable<Document>();
         }
-    }
-    static class ConnectionWIthDataBase
-    {
-        static public DataContext db = new DataContext("D:\\PredProfMDF\\db\\DataaaaaaaaaAAAAABaaase.mdf");
-        static public Table<Employee> Employees = db.GetTable<Employee>();
-        static public Table<Department> Departments = db.GetTable<Department>();
-        static public Table<Document> Documents = db.GetTable<Document>();
         public struct DocumentNameAndIsSigned
         {
             public string name;
@@ -158,9 +135,8 @@ namespace DataBaseThings
         {
             public string name;
             public string birthday;
-            public int ID;
         }
-        static public List<DocumentNameAndIsSigned> GetAllDocumentsNames() //Возвращает список структур, содержащих имя документа и буль подписан ли
+        public List<DocumentNameAndIsSigned> GetAllDocumentsNames() //Возвращает список структур, содержащих имя документа
         {
             List<DocumentNameAndIsSigned> result = new List<DocumentNameAndIsSigned>();
             foreach (Document doc in Documents)
@@ -172,71 +148,140 @@ namespace DataBaseThings
             }
             return result;
         }
-        static public String GetInfoAboutDocument(int Documentid)
+        public String GetChoosenDocumentInfo() //не должно быть ресколько доков с одним именем
         {
-            foreach (Document doc in Documents)
-            {
-                if (doc.DocumentID == Documentid)
-                    return doc.ToString();
-            }
-            return null; //impossible
+            return ChoosenDocument.Name;
         }
-
-        static public List<EmployeeNameAndBirthDay> GetAllEmployees(string subName) //возвращает список структур, содержащих имя и дату рождения сотрудника, имя которого в данный момент вводится 
+        public string GetAllInfoAboutChoosenInfo()
+        {
+            return ChoosenDocument.ToString();
+        }
+        public void SetChoosenDocument(int DocumentIndex)
+        {
+            ++DocumentIndex;
+            foreach(Document doc in Documents)
+            {
+                if (doc.DocumentID == DocumentIndex)
+                {
+                    ChoosenDocument = doc;
+                    if (doc.EmployeesWhoSigned == null || doc.EmployeesWhoSigned == "")
+                    {
+                        ChoosenDocument.EmployeesWhoSigned = " ";
+                    }
+                    
+                }
+            }
+        }
+        public List<EmployeeNameAndBirthDay> GetAllEmployees() //возвращает список структур, содержащих имя и дату рождения сотрудника, имя которого в данный момент вводится 
         {
             List<EmployeeNameAndBirthDay> result = new List<EmployeeNameAndBirthDay>();
             foreach (Employee emp in Employees)
             {
-                if (emp.Name.Contains(subName))
-                {
-                    EmployeeNameAndBirthDay e = new EmployeeNameAndBirthDay();
-                    e.name = emp.Name;
-                    e.birthday = emp.BirthDate;
-                    e.ID = int.Parse(emp.EmployeeID);
-                    result.Add(e);
-                }
+                    EmployeeNameAndBirthDay d = new EmployeeNameAndBirthDay();
+                    d.name = emp.Name;
+                    d.birthday = emp.BirthDate;
+                    result.Add(d);
             }
             return result;
         }
 
-        static public string IsIDValid(int employeeID)
+        public string IsIDValid(string res)
         {
-            string code = InformationFromFleshka.InformationAboutFile();
-            if (code == "ObmanSuperPuper")
+            Employee empoyee = Employees.First();
+            string[] ss = res.Split(',');
+            string empname = ss[0];
+            string empbirthdate = ss[1].Remove(0, 1); 
+            foreach (Employee emp in Employees)
+            {
+                if (emp.Name == empname && emp.BirthDate == empbirthdate)
+                {
+                    empoyee = emp;
+                }
+            }
+            if (empoyee.Department == "Бухгалетрия")
+            {
+                empoyee.Department = "1";
+            }
+            if (empoyee.Department == "Отдел кадров")
+            {
+                empoyee.Department = "2";
+            }
+            if (empoyee.Department == "Техподдержка")
+            {
+                empoyee.Department = "3";
+            }
+            if (empoyee.Department == "Отдел продаж")
+            {
+                empoyee.Department = "4";
+            }
+            string code = InformationFromFleshka.InformationAboutFile(); //сделать так, чтобы данная функция вызывалась после того, как флешка точно вставлена
+            if (code == "ObmanSuperPuper" || code == "ObmanSuperPuperPapkiIliFailaNet")
             {
                 return "Флеш-карта не прочитана";
             }
-            return (int.Parse(code) == employeeID ? "Код корректный" : "Код некорректный");
+            if (ChoosenDocument.EmployeesWhoSigned.Contains(empoyee.Name))
+            {
+                return "Уже подписал";
+            }
+            if ((((int.Parse(empoyee.SecurityLevel) >= ChoosenDocument.SecurityLevel) &&( empoyee.Department == ChoosenDocument.Department)) || (int.Parse(empoyee.SecurityLevel) == 5)) && (empoyee.EmployeeID == code))
+            {
+                return "Сотрудник подтвержден";
+            }
+            if (ChoosenDocument.EmployeesWhoSigned.Contains(empoyee.Name))
+            {
+                return "Уже подписал";
+            }
+            else
+            {
+                return "Неверный код";
+            }
         }
 
-        static public void SetSigned(int docID, int employeeID) //добавляет тех, кто подписал
+        public void SetSigned(string name) //добавляет тех, кто подписал
         {
+            Employee empoyee = Employees.First();
+            string[] ss = name.Split(',');
+            string empname = ss[0];
+            string empbirthdate = ss[1].Remove(0, 1);
+            foreach (Employee emp in Employees)
+            {
+                if (emp.Name == empname && emp.BirthDate == empbirthdate)
+                {
+                    empoyee = emp;
+                }
+            }
             foreach (Document doc in Documents)
             {
-                if (doc.DocumentID == docID)
+                if (doc.DocumentID == ChoosenDocument.DocumentID)
                 {
-                    foreach (Employee emp in Employees)
+                    if (doc.IsFullySigned)
                     {
-                        if (int.Parse(emp.EmployeeID) == employeeID)
-                        {
-                            doc.EmployeesWhoSigned += emp.Name + ", ";
-                            if (CountHowManyPeopleHaveSigned(doc.Name) == doc.NumberOfSigned)
-                                doc.IsFullySigned = true;
-                            return;
-                        }
+                        return;
                     }
+                    if (ChoosenDocument.EmployeesWhoSigned == " ")
+                    {
+                        doc.EmployeesWhoSigned += (empoyee.Name + " ");
+                    }
+                    else
+                    {
+                        doc.EmployeesWhoSigned += ("," + empoyee.Name + " ");
+                    }
+                    if (countHowManyEmpSigned(doc.EmployeesWhoSigned) == doc.NumberOfSigned)
+                    {
+                        doc.IsFullySigned = true;
+                    }
+                    db.SubmitChanges();
                 }
             }
         }
-        static private int CountHowManyPeopleHaveSigned(string name)
+        static int countHowManyEmpSigned(string s)
         {
-            int res = 0;
-            foreach(char s in name)
+            int result = 0;
+            foreach(int x in s)
             {
-                if (s == ',')
-                    ++res;
+                result += (x == ',') ? 1 : 0;
             }
-            return res;
+            return ++result;
         }
     }
 }

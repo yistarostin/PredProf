@@ -99,11 +99,10 @@
             this.textBox2.Location = new System.Drawing.Point(162, 136);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
+            this.textBox2.ReadOnly = true;
             this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox2.Size = new System.Drawing.Size(575, 260);
             this.textBox2.TabIndex = 1;
-            this.textBox2.Text = "Шилов Владлен Львович 25.05.1989 - подписал\r\nГребневский Станислав Станиславович " +
-    "07.09.1960 - подписал\r\nБелов Радислав Иванович 02.11.1958 - не подписал";
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // textBox1
